@@ -39,18 +39,25 @@ Plus a `ping` connectivity check tool (105 total), and **Prompt** support for gu
 
 ### SAC Tenant Setup
 
-1. Open your SAC tenant and go to **System > Administration > App Integration > Add a New OAuth Client**.
-2. Set the purpose to **Interactive Usage and API Access**.
-3. Note down the following four values:
-   - **Base URL** -- `https://<tenant>.<datacenter>.sapanalytics.cloud`
-   - **Token URL** -- shown on the OAuth client detail page
+1. Open your SAC tenant and go to **System > Administration > App Integration > OAuth Clients > Add a New OAuth Client**. You need an administrator.
+2. Set **Purpose** to **API Access**. SAC offers *Interactive Usage* and *API Access* only as separate purposes; this server uses API Access.
+3. Under **Access**, tick the APIs the tools should reach. With all options ticked, every tool on client credentials works. A tool whose API is not ticked gets 401 or 403.
+4. Set **Authorization Grant** to **Client Credentials**. The dialog defaults to *SAML2.0 Bearer*, which this server does not use.
+5. Set a token lifetime (for example 1 hour) and **Add**. Copy the secret; SAC shows it only now.
+6. Note down the four values:
+   - **Base URL** -- the tenant root, for example `https://<tenant>.<datacenter>.hcs.cloud.sap` or, on older tenants, `https://<tenant>.<datacenter>.sapanalytics.cloud`. No trailing slash.
+   - **Token URL** -- at the top of the App Integration page, under *OAuth Clients*. Its host is not the tenant host: `https://<subdomain>.authentication.<datacenter>.hana.ondemand.com/oauth/token`.
    - **Client ID**
    - **Client Secret**
+
+The OAuth client can write as soon as its access options allow it. `allowalteration=true` is a confirmation for the model, not a guard: restrict the client's access options, or filter the write tools in your MCP client, if a connection must stay read-only.
+
+SAP documents some endpoints as needing a user context (OAuth authorization code or SAML bearer): planning versions, calendar events and multi actions. Expect them to fail on client credentials. SAP documents the activity log and monitoring the same way, but both work on client credentials, as do SCIM2, Data Export, Data Import, the Content Network and the file repository (tested on a Q3 2026 tenant).
 
 ## Installation & Build
 
 ```bash
-git clone https://github.com/JumenEngels/sap_analytics_cloud_mcp
+git clone https://github.com/army113/sap_analytics_cloud_mcp
 cd sap_analytics_cloud_mcp
 npm install
 npm run build
